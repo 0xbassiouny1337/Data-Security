@@ -1,10 +1,11 @@
+using SecurityLibrary;
 using System;
 
-namespace CaesarCipherApp
+namespace SecurityLibrary
 {
-    public static class CaesarCipher
+    public class Ceaser
     {
-        public static string Encrypt(string inputText, int shiftKey)
+        public string Encrypt(string inputText, int shiftKey)
         {
             if (string.IsNullOrEmpty(inputText))
             {
@@ -34,13 +35,12 @@ namespace CaesarCipherApp
             return new string(cipherTextChars);
         }
 
-        public static string Decrypt(string inputText, int shiftKey)
+        public string Decrypt(string inputText, int shiftKey)
         {
             return Encrypt(inputText, -shiftKey);
         }
 
-
-        public static int Analyse(string plainText, string cipherText)
+        public int Analyse(string plainText, string cipherText)
         {
             if (string.IsNullOrEmpty(plainText))
                 throw new ArgumentException("Plain text cannot be null or empty.", nameof(plainText));
@@ -61,7 +61,7 @@ namespace CaesarCipherApp
                         throw new ArgumentException("Mismatch: plain text letter does not correspond to a letter in cipher text.");
 
                     char baseChar = char.IsUpper(p) ? 'A' : 'a';
-                    int computedKey = (c - p + 26) % 26; // Normalize negative shifts.
+                    int computedKey = (c - p + 26) % 26;
 
                     if (foundKey == null)
                     {
@@ -80,13 +80,20 @@ namespace CaesarCipherApp
             return foundKey.Value;
         }
     }
+}
 
+
+namespace CaesarCipherApp
+{
     class Program
     {
         static void Main(string[] args)
         {
             bool continueProgram = true;
             Console.WriteLine("Welcome to the Caesar Cipher App!");
+
+            // Create an instance of the Ceaser class
+            Ceaser ceaser = new Ceaser();
 
             while (continueProgram)
             {
@@ -119,7 +126,8 @@ namespace CaesarCipherApp
                             continue;
                         }
 
-                        string encryptedMessage = CaesarCipher.Encrypt(userMessage, numericKey);
+                        // Use the Ceaser instance to encrypt
+                        string encryptedMessage = ceaser.Encrypt(userMessage, numericKey);
                         Console.WriteLine($"\nEncrypted Message: {encryptedMessage}");
                     }
                     else if (mode == "D")
@@ -140,7 +148,8 @@ namespace CaesarCipherApp
                             continue;
                         }
 
-                        string decryptedMessage = CaesarCipher.Decrypt(userMessage, numericKey);
+                        // Use the Ceaser instance to decrypt
+                        string decryptedMessage = ceaser.Decrypt(userMessage, numericKey);
                         Console.WriteLine($"\nDecrypted Message: {decryptedMessage}");
                     }
                     else if (mode == "A")
@@ -161,7 +170,8 @@ namespace CaesarCipherApp
                             continue;
                         }
 
-                        int analyzedKey = CaesarCipher.Analyse(plainText, cipherText);
+                        // Use the Ceaser instance to analyze
+                        int analyzedKey = ceaser.Analyse(plainText, cipherText);
                         Console.WriteLine($"\nThe key is: {analyzedKey}");
                     }
                 }
@@ -170,16 +180,16 @@ namespace CaesarCipherApp
                     Console.WriteLine($"An error occurred: {ex.Message}");
                 }
 
-                Console.Write("\nproceed? (Y/N): ");
+                Console.Write("\nProceed? (Y/N): ");
                 string proceed = Console.ReadLine()?.Trim().ToUpper();
                 if (proceed != "Y")
                 {
                     continueProgram = false;
                 }
-                Console.WriteLine(); 
+                Console.WriteLine();
             }
 
-            Console.WriteLine("Exiting the program. Goodbye!");
+            Console.WriteLine("Goodbye!");
         }
     }
 }
