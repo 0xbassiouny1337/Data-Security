@@ -1,8 +1,12 @@
+/*
+Summary:
+Encrypt(string plainText, int key): Encrypts the given plainText using the Caesar cipher algorithm with the provided key. The key is normalized to the range 0-25. Non-letter characters remain unchanged.
+Decrypt(string cipherText, int key): Decrypts the given cipherText by computing the decryption key as (-key + 26) mod 26 and then encrypting the text with that decryption key.
+Analyse(string plainText, string cipherText): Analyzes the provided plainText and cipherText to determine the encryption key used. It processes only letter characters (after converting texts to lowercase) and returns the consistent shift value if found.
+ShiftCharacter(char ch, int key): Shifts a single character by the given key if it is a letter; returns non-letter characters unchanged.
+*/
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SecurityLibrary
 {
@@ -10,43 +14,27 @@ namespace SecurityLibrary
     {
         public string Encrypt(string plainText, int key)
         {
-            if (string.IsNullOrEmpty(plainText))
-            {
-                throw new ArgumentException("Input text cannot be null or empty.", nameof(plainText));
-            }
-            key %= 26;
-            char[] cipherTextChars = new char[plainText.Length];
+            key = key % 26;
+            char[] result = new char[plainText.Length];
             for (int i = 0; i < plainText.Length; i++)
             {
-                char currentChar = plainText[i];
-                if (char.IsLetter(currentChar))
-                {
-                    char baseChar = char.IsUpper(currentChar) ? 'A' : 'a';
-                    int alphaIndex = currentChar - baseChar;
-                    int shiftedIndex = (alphaIndex + key + 26) % 26;
-                    cipherTextChars[i] = (char)(baseChar + shiftedIndex);
-                }
-                else
-                {
-                    cipherTextChars[i] = currentChar;
-                }
+                result[i] = ShiftCharacter(plainText[i], key);
             }
-            return new string(cipherTextChars);
+            return new string(result);
         }
 
         public string Decrypt(string cipherText, int key)
         {
-            return Encrypt(cipherText, -key);
+            int decryptKey = (-key + 26) % 26;
+            return Encrypt(cipherText, decryptKey);
         }
 
         public int Analyse(string plainText, string cipherText)
         {
-            if (string.IsNullOrEmpty(plainText))
-                throw new ArgumentException("Plain text cannot be null or empty.", nameof(plainText));
-            if (string.IsNullOrEmpty(cipherText))
-                throw new ArgumentException("Cipher text cannot be null or empty.", nameof(cipherText));
             if (plainText.Length != cipherText.Length)
+            {
                 throw new ArgumentException("Plain text and cipher text must be of the same length.");
+            }
 
             plainText = plainText.ToLower();
             cipherText = cipherText.ToLower();
@@ -54,14 +42,13 @@ namespace SecurityLibrary
             int? foundKey = null;
             for (int i = 0; i < plainText.Length; i++)
             {
-                char p = plainText[i];
-                char c = cipherText[i];
-                if (char.IsLetter(p))
+                if (char.IsLetter(plainText[i]))
                 {
-                    if (!char.IsLetter(c))
+                    if (!char.IsLetter(cipherText[i]))
+                    {
                         throw new ArgumentException("Mismatch: plain text letter does not correspond to a letter in cipher text.");
-
-                    int computedKey = (c - p + 26) % 26;
+                    }
+                    int computedKey = (cipherText[i] - plainText[i] + 26) % 26;
                     if (foundKey == null)
                     {
                         foundKey = computedKey;
@@ -73,8 +60,31 @@ namespace SecurityLibrary
                 }
             }
             if (foundKey == null)
+            {
                 throw new ArgumentException("No letters were found to analyze the key.");
+            }
             return foundKey.Value;
         }
+
+        private char ShiftCharacter(char ch, int key)
+        {
+            if (!char.IsLetter(ch))
+            {
+                return ch;
+            }
+            char baseChar;
+            if (char.IsUpper(ch))
+            {
+                baseChar = 'A';
+            }
+            else
+            {
+                baseChar = 'a';
+            }
+            int alphaIndex = ch - baseChar;
+            int shiftedIndex = (alphaIndex + key + 26) % 26;
+            char shiftedChar = (char)(baseChar + shiftedIndex);
+            return shiftedChar;
+        }
     }
-  }   
+}
