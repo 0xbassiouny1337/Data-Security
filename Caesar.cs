@@ -33,7 +33,7 @@ namespace SecurityLibrary
         {
             if (plainText.Length != cipherText.Length)
             {
-                throw new ArgumentException("Plain text and cipher text must be of the same length.");
+                return -1;
             }
 
             plainText = plainText.ToLower();
@@ -46,7 +46,7 @@ namespace SecurityLibrary
                 {
                     if (!char.IsLetter(cipherText[pos]))
                     {
-                        throw new ArgumentException("Mismatch: plain text letter does not correspond to a letter in cipher text.");
+                        return -1;
                     }
                     int currentKey = (cipherText[pos] - plainText[pos] + 26) % 26;
                     if (detectedKey == null)
@@ -55,13 +55,13 @@ namespace SecurityLibrary
                     }
                     else if (detectedKey != currentKey)
                     {
-                        throw new ArgumentException("Inconsistent encryption: different key shifts detected.");
+                        return -1;
                     }
                 }
             }
             if (detectedKey == null)
             {
-                throw new ArgumentException("No letters were found to analyze the key.");
+                return -1;
             }
             return detectedKey.Value;
         }
@@ -72,19 +72,12 @@ namespace SecurityLibrary
             {
                 return ch;
             }
-            char baseLetter;
-            if (char.IsUpper(ch))
-            {
-                baseLetter = 'A';
-            }
-            else
-            {
-                baseLetter = 'a';
-            }
+            char baseLetter = char.IsUpper(ch) ? 'A' : 'a';
             int offset = ch - baseLetter;
             int newOffset = (offset + key + 26) % 26;
-            char resultChar = (char)(baseLetter + newOffset);
-            return resultChar;
+            return (char)(baseLetter + newOffset);
         }
     }
+}
+
 }
