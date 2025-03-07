@@ -15,18 +15,18 @@ namespace SecurityLibrary
         public string Encrypt(string plainText, int key)
         {
             key = key % 26;
-            char[] result = new char[plainText.Length];
-            for (int i = 0; i < plainText.Length; i++)
+            char[] encryptedChars = new char[plainText.Length];
+            for (int index = 0; index < plainText.Length; index++)
             {
-                result[i] = ShiftCharacter(plainText[i], key);
+                encryptedChars[index] = ShiftCharacter(plainText[index], key);
             }
-            return new string(result);
+            return new string(encryptedChars);
         }
 
         public string Decrypt(string cipherText, int key)
         {
-            int decryptKey = (-key + 26) % 26;
-            return Encrypt(cipherText, decryptKey);
+            int invKey = (-key + 26) % 26;
+            return Encrypt(cipherText, invKey);
         }
 
         public int Analyse(string plainText, string cipherText)
@@ -39,31 +39,31 @@ namespace SecurityLibrary
             plainText = plainText.ToLower();
             cipherText = cipherText.ToLower();
 
-            int? foundKey = null;
-            for (int i = 0; i < plainText.Length; i++)
+            int? detectedKey = null;
+            for (int pos = 0; pos < plainText.Length; pos++)
             {
-                if (char.IsLetter(plainText[i]))
+                if (char.IsLetter(plainText[pos]))
                 {
-                    if (!char.IsLetter(cipherText[i]))
+                    if (!char.IsLetter(cipherText[pos]))
                     {
                         throw new ArgumentException("Mismatch: plain text letter does not correspond to a letter in cipher text.");
                     }
-                    int computedKey = (cipherText[i] - plainText[i] + 26) % 26;
-                    if (foundKey == null)
+                    int currentKey = (cipherText[pos] - plainText[pos] + 26) % 26;
+                    if (detectedKey == null)
                     {
-                        foundKey = computedKey;
+                        detectedKey = currentKey;
                     }
-                    else if (foundKey != computedKey)
+                    else if (detectedKey != currentKey)
                     {
                         throw new ArgumentException("Inconsistent encryption: different key shifts detected.");
                     }
                 }
             }
-            if (foundKey == null)
+            if (detectedKey == null)
             {
                 throw new ArgumentException("No letters were found to analyze the key.");
             }
-            return foundKey.Value;
+            return detectedKey.Value;
         }
 
         private char ShiftCharacter(char ch, int key)
@@ -72,19 +72,19 @@ namespace SecurityLibrary
             {
                 return ch;
             }
-            char baseChar;
+            char baseLetter;
             if (char.IsUpper(ch))
             {
-                baseChar = 'A';
+                baseLetter = 'A';
             }
             else
             {
-                baseChar = 'a';
+                baseLetter = 'a';
             }
-            int alphaIndex = ch - baseChar;
-            int shiftedIndex = (alphaIndex + key + 26) % 26;
-            char shiftedChar = (char)(baseChar + shiftedIndex);
-            return shiftedChar;
+            int offset = ch - baseLetter;
+            int newOffset = (offset + key + 26) % 26;
+            char resultChar = (char)(baseLetter + newOffset);
+            return resultChar;
         }
     }
 }
