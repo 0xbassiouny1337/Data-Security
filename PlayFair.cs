@@ -1,4 +1,4 @@
-it is good to sumbit the code like this , it won't taken as cheating or Copy others code : using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,11 +12,7 @@ namespace SecurityLibrary
 
         public string Encrypt(string plainText, string key)
         {
-            if (string.IsNullOrWhiteSpace(plainText))
-                throw new ArgumentException("Plain text cannot be null or empty.");
-            if (string.IsNullOrWhiteSpace(key))
-                throw new ArgumentException("Key cannot be null or empty.");
-
+            // Removed exception handling; ensure valid inputs elsewhere.
             string refinedKey = CleanInput(key);
             char[,] mat = GenerateKeyMatrix(refinedKey);
             var positionMap = BuildLookup(mat);
@@ -50,11 +46,7 @@ namespace SecurityLibrary
 
         public string Decrypt(string cipherText, string key)
         {
-            if (string.IsNullOrWhiteSpace(cipherText))
-                throw new ArgumentException("Cipher text cannot be null or empty.");
-            if (string.IsNullOrWhiteSpace(key))
-                throw new ArgumentException("Key cannot be null or empty.");
-
+            // Removed exception handling; ensure valid inputs elsewhere.
             string refinedKey = CleanInput(key);
             char[,] mat = GenerateKeyMatrix(refinedKey);
             var positionMap = BuildLookup(mat);
